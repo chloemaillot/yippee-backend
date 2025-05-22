@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: yippee-backend
+    env: python
+    buildCommand: ""
+    startCommand: "python main.py"
+    plan: free
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ELEVEN_API_KEY
+        sync: false
