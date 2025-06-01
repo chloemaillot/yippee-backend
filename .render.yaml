@@ -5,7 +5,7 @@ services:
     buildCommand: ""
     startCommand: "python main.py"
     plan: free
-    staticPublishPath: static  # 👈✅ Ajoute ceci !
+    staticPublishPath: static
     envVars:
       - key: OPENAI_API_KEY
         sync: false
