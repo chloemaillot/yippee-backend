@@ -95,7 +95,7 @@ def elevenlabs_speak(text, user_id="output"):
             f.write(response.content)
 
         base_url = "yippee-backend-cozb.onrender.com"
-        audio_url = f"https://{base_url}/{filename}"
+        audio_url = f"https://yippee-backend-cozb.onrender.com/{filename}"
         print("✅ Audio généré :", audio_url)
         return audio_url
     else:
