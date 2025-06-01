@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -60,6 +59,7 @@ Sois chaleureux, encourageant et très accessible."""
     audio_url = elevenlabs_speak(answer, name)
     return jsonify({"text": answer, "audio_url": audio_url})
 
+
 def elevenlabs_speak(text, user_id="output"):
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     headers = {
@@ -80,11 +80,13 @@ def elevenlabs_speak(text, user_id="output"):
         filename = f"static/{user_id}.mp3"
         with open(filename, "wb") as f:
             f.write(response.content)
-        base_url = os.getenv("RENDER_EXTERNAL_HOSTNAME", "localhost:10000")
+
+        # 🔧 Correction ici :
+        base_url = "yippee-backend-cozb.onrender.com"
         return f"https://{base_url}/{filename}"
     return ""
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
-
