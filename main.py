@@ -8,12 +8,17 @@ from openai import OpenAI
 app = Flask(__name__)
 CORS(app)
 
+# Chargement des clés API
 openai_api_key = os.getenv("OPENAI_API_KEY")
 eleven_api_key = os.getenv("ELEVEN_API_KEY")
 voice_id = "bozffAqAkoP5Lp5FKAyE"
 client = OpenAI(api_key=openai_api_key)
 surnom = "Lili"
 messages_by_user = {}
+
+# Log des clés pour debug (à commenter en prod)
+print("🔑 Clé OpenAI présente :", bool(openai_api_key))
+print("🔑 Clé ElevenLabs présente :", bool(eleven_api_key))
 
 questions_emo = [
     "Et toi, comment tu te sens aujourd’hui ?",
@@ -48,6 +53,7 @@ Sois chaleureux, encourageant et très accessible."""
         emotion = random.choice(questions_emo)
         messages.append({"role": "assistant", "content": emotion})
 
+    # Appel OpenAI
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages
@@ -56,11 +62,15 @@ Sois chaleureux, encourageant et très accessible."""
     answer = response.choices[0].message.content
     messages.append({"role": "assistant", "content": answer})
 
+    print("🤖 Réponse GPT :", answer)
+
     audio_url = elevenlabs_speak(answer, name)
     return jsonify({"text": answer, "audio_url": audio_url})
 
 
 def elevenlabs_speak(text, user_id="output"):
+    print("🗣️ Texte envoyé à ElevenLabs :", text)
+
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
     headers = {
         "xi-api-key": eleven_api_key,
@@ -75,17 +85,22 @@ def elevenlabs_speak(text, user_id="output"):
         }
     }
     response = requests.post(url, json=data, headers=headers)
+
+    print("🔁 Statut ElevenLabs :", response.status_code)
+
     if response.status_code == 200:
         os.makedirs("static", exist_ok=True)
         filename = f"static/{user_id}.mp3"
         with open(filename, "wb") as f:
             f.write(response.content)
 
-        # 🔧 Correction ici :
         base_url = "yippee-backend-cozb.onrender.com"
-        return f"https://{base_url}/{filename}"
-    return ""
-
+        audio_url = f"https://{base_url}/{filename}"
+        print("✅ Audio généré :", audio_url)
+        return audio_url
+    else:
+        print("❌ Erreur ElevenLabs :", response.text)
+        return ""
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
